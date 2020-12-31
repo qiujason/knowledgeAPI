@@ -1,12 +1,12 @@
-from flask import Flask
+from flask import Flask, request
 
 app = Flask(__name__)
 
 
-@app.route('/')
+@app.route('/submit', methods=['POST'])
 def hello_world():
-    return 'Hello World!'
-
+    data = request.data
+    return data
 
 if __name__ == '__main__':
     app.run()
