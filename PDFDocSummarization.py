@@ -1,39 +1,23 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
 import numpy as np
 from nltk.cluster.util import cosine_distance
 import networkx as nx
 from nltk.corpus import stopwords
 
 
-# In[2]:
-
-
-def read_file(file_name):
-    input_file = open(file_name, "r", encoding='utf-8').readlines()
+def parse_input(input):
     sentences = []
-    for sentence in input_file:
+    for sentence in input:
         onlyAlpha = sentence.replace("[^a-zA-Z]", " ").split(" ")
         removeNewline = [x.replace('\n', '') for x in onlyAlpha]
         sentences.append(removeNewline)
     return sentences
 
 
-# In[3]:
-
-
 def lower_case(wordlist):
     return list(w.lower() for w in wordlist)
 
 
-# In[4]:
-
-
-def similarityMatrix(sentences, stop_words):
+def similarity_matrix(sentences, stop_words):
     matrix = np.zeros((len(sentences), len(sentences)))
 
     # Comparing the sentences
@@ -64,15 +48,12 @@ def similarityMatrix(sentences, stop_words):
     return matrix
 
 
-# In[5]:
-
-
-def article_to_summary(input_file, num):
+def article_to_summary(input_sentences, num):
     sum_text = []
-    sentences = read_file(input_file)
+    sentences = parse_input(input_sentences)
 
     stop_words = stopwords.words('english')
-    matrix = similarityMatrix(sentences, stop_words)  # Building the similarity matrix
+    matrix = similarity_matrix(sentences, stop_words)  # Building the similarity matrix
 
     sentence_ranks = nx.from_numpy_array(matrix)  # Ranking
     ranks = nx.pagerank(sentence_ranks)
@@ -84,24 +65,5 @@ def article_to_summary(input_file, num):
     for sen in sum_text:
         print("\u2022 " + sen.lstrip())
     sum_text = " ".join(sum_text)
-    # print("Summarized Text: \n",sum_text)
     return sum_text
-
-
-# In[6]:
-
-
-file2_output = article_to_summary("input-file.txt", 4)
-
-# In[7]:
-
-
-# count = 2
-# for i in range(2,6):
-#     fileName1 = "inputFile"+str(count)+".txt"
-#     fileName2 = "outputFile"+str(count)+".txt"
-#     count = count + 1
-#     file_output = article_to_summary(fileName1,3)
-#     print(file_output)
-#     np.savetxt(fileName2, [file_output] , fmt='%s')
 
