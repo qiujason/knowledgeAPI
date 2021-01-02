@@ -2,20 +2,15 @@ from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.pdfpage import PDFPage
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
-from pdfminer.pdfdocument import PDFDocument
-from pdfminer.pdfparser import PDFParser
 import io
-import os
 import re
+
 
 def pdf_to_text(file):
     fp = open(file, 'rb')
     rsrcmgr = PDFResourceManager()
     retstr = io.StringIO()
-    print(type(retstr))
-    codec = 'utf-8'
     laparams = LAParams()
-    #device = TextConverter(rsrcmgr, retstr, codec=codec, laparams=laparams)
     device = TextConverter(rsrcmgr, retstr, laparams=laparams)
     interpreter = PDFPageInterpreter(rsrcmgr, device)
 
@@ -29,35 +24,13 @@ def pdf_to_text(file):
 
         page_no += 1
 
-
-    # In[3]:
-
-
     get_index = data.split("\n").index('Abstract- ')
-
-
-    # In[4]:
-
-
     final_data = "".join(data.split("\n")[get_index:])
-
-
-    # In[5]:
-
-
-    dataSplit = re.split("(?<!\d)[.](?!\d)", final_data)
-
-
-    # In[6]:
-
+    data_split = re.split("(?<!\d)[.](?!\d)", final_data)
 
     modified = []
-    for x in map(str.lstrip, dataSplit):
+    for x in map(str.lstrip, data_split):
         modified.append(x)
-
-
-    # In[7]:
-
 
     start = ''
     for word in modified:
@@ -65,26 +38,11 @@ def pdf_to_text(file):
             start = modified.index(word)
             break
 
-
-    # In[8]:
-
-
     end = ''
     for word in modified:
         if word.startswith('Keywords'):
             end = modified.index(word)
             break
 
-
-    # In[9]:
-
-
-    x = '\n'.join(dataSplit[start:end])
-
-
-    # In[10]:
-
-
-    f = open("input-file.txt", "w",encoding='utf-8')
-    f.write(x)
-    f.close()
+    fp.close()
+    return data_split[start:end]

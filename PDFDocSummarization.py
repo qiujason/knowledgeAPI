@@ -61,9 +61,6 @@ def article_to_summary(input_sentences, num):
     sentence_ranks = sorted(((ranks[i], s) for i, s in enumerate(sentences)), reverse=True)  # Rank sorting
     for i in range(num):
         sum_text.append(" ".join(sentence_ranks[i][1]))
-    print("\033[1m" + "Highlights" + "\033[0m")
-    for sen in sum_text:
-        print("\u2022 " + sen.lstrip())
     sum_text = " ".join(sum_text)
     return sum_text
 
