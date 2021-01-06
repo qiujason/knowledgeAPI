@@ -18,7 +18,7 @@ app.config['UPLOAD_FOLDER'] = './' + UPLOAD_FOLDER
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'GET':  # site query
-        return json.dumps(WebScraping.web_scraping(request.args.get('website')))
+        return SiteSummarization.article_to_summary(WebScraping.web_scraping(request.args.get('website')), 20)
     elif request.method == 'POST':
         if 'file' in request.files:  # pdf upload
             if not os.path.exists(UPLOAD_FOLDER):
