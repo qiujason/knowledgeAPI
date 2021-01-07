@@ -45,5 +45,4 @@ def pdf_to_text(file):
             break
 
     fp.close()
-    print(data_split[start:end])
     return data_split[start:end]

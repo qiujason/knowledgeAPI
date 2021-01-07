@@ -48,7 +48,7 @@ def similarity_matrix(sentences, stop_words):
     return matrix
 
 
-def article_to_summary(input_sentences, num):
+def pdf_article_to_summary(input_sentences, num):
     sum_text = []
     sentences = parse_input(input_sentences)
 
@@ -62,4 +62,21 @@ def article_to_summary(input_sentences, num):
     for i in range(num):
         sum_text.append(" ".join(sentence_ranks[i][1]))
     return sum_text
+
+
+def site_article_to_summary(input, num):
+    sum_text = []
+    sentences = parse_input(input)
+
+    stop_words = stopwords.words('english')
+    matrix = similarity_matrix(sentences, stop_words)  # Building the similarity matrix
+
+    sentence_ranks = nx.from_numpy_array(matrix)  # Ranking
+    ranks = nx.pagerank(sentence_ranks)
+
+    sentence_ranks = sorted(((ranks[i], s) for i, s in enumerate(sentences)), reverse=True)  # Rank sorting
+    for i in range(num):
+        sum_text.append(" ".join(sentence_ranks[i][1]))
+    sum_text = " ".join(sum_text)
+    return {'Summarized Text': sum_text}
 

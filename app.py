@@ -3,8 +3,7 @@ from flask import Flask, request, jsonify
 from werkzeug.utils import secure_filename
 import json
 import WebScraping
-import SiteSummarization
-import PDFDocSummarization
+import Summarization
 import PDFtoText
 
 UPLOAD_FOLDER = 'uploads'
@@ -18,7 +17,7 @@ app.config['UPLOAD_FOLDER'] = './' + UPLOAD_FOLDER
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'GET':  # site query
-        return SiteSummarization.article_to_summary(WebScraping.web_scraping(request.args.get('website')), 20)
+        return Summarization.site_article_to_summary(WebScraping.web_scraping(request.args.get('website')), 20)
     elif request.method == 'POST':
         if 'file' in request.files:  # pdf upload
             if not os.path.exists(UPLOAD_FOLDER):
@@ -30,13 +29,13 @@ def upload_file():
             highlights = ''
             if file and '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS:
                 file.save(filepath)
-                highlights = json.dumps(PDFDocSummarization.article_to_summary(PDFtoText.pdf_to_text(filepath), 4))
+                highlights = json.dumps(Summarization.pdf_article_to_summary(PDFtoText.pdf_to_text(filepath), 4))
                 os.remove(filepath)
             if highlights == '':
                 return make_error('Invalid file')
             return highlights
         elif 'text' in request.get_json():  # text upload
-            return json.dumps(PDFDocSummarization.article_to_summary(request.get_json()['text'], 4))
+            return json.dumps(Summarization.pdf_article_to_summary(request.get_json()['text'], 4))
         else:
             return make_error('Invalid request')
 
