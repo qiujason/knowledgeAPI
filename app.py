@@ -20,17 +20,16 @@ def upload_file():
         return Summarization.site_article_to_summary(WebScraping.web_scraping(request.args.get('website')), 20)
     elif request.method == 'POST':
         if 'file' in request.files:  # pdf upload
-            if not os.path.exists(UPLOAD_FOLDER):
-                os.makedirs(UPLOAD_FOLDER)
             file = request.files['file']
             if file.filename == '':
                 return make_error('No file selected')
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(file.filename))
+            # filepath = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(file.filename))
             highlights = ''
-            if file and '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS:
-                file.save(filepath)
-                highlights = json.dumps(Summarization.pdf_article_to_summary(PDFtoText.pdf_to_text(filepath), 4))
-                os.remove(filepath)
+            # if file and '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS:
+            #     file.save(filepath)
+            #     file.stream.seek(0)
+            highlights = json.dumps(Summarization.pdf_article_to_summary(PDFtoText.pdf_to_text(file), 4))
+                # os.remove(filepath)
             if highlights == '':
                 return make_error('Invalid file')
             return highlights
