@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flaskext.mysql import MySQL
 import json
 import WebScraping
 import Summarization
@@ -10,6 +11,12 @@ ALLOWED_EXTENSIONS = {'pdf'}
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = './' + UPLOAD_FOLDER
+
+mysql = MySQL()
+app.config['MYSQL_DATABASE_USER'] = 'jason'
+app.config['MYSQL-DATABASE_PASSWORD'] = 'password'
+app.config['MYSQL_DATABASE_DB'] = ''
+app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 
 
 @app.route('/upload', methods=['GET', 'POST'])
