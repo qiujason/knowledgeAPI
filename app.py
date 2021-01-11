@@ -19,26 +19,29 @@ app.config['MYSQL_DATABASE_DB'] = ''
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 
 
-@app.route('/upload', methods=['GET', 'POST'])
-def upload_file():
-    if request.method == 'GET':  # site query
-        if request.args.get('website'):
-            return Summarization.site_article_to_summary(WebScraping.web_scraping(request.args.get('website')), 20)
-        return make_error('No website')
-    elif request.method == 'POST':
-        if 'file' in request.files:  # pdf upload
-            file = request.files['file']
-            if file.filename == '':
-                return make_error('No file selected')
-            if '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS:
-                highlights = json.dumps(Summarization.pdf_article_to_summary(PDFtoText.pdf_to_text(file), 4))
-                if highlights == '':
-                    return make_error('Invalid file')
-                return highlights
-        elif request.get_json() and 'text' in request.get_json():  # text upload
-            return json.dumps(Summarization.pdf_article_to_summary(request.get_json()['text'], 4))
-        else:
-            return make_error('Invalid request')
+@app.route('/upload_site', methods=['GET'])
+def upload_site():
+    if request.args.get('website'):
+        return Summarization.site_article_to_summary(WebScraping.web_scraping(request.args.get('website')), 20)
+    return make_error('No website')
+
+
+@app.route('/upload_text', methods=['POST'])
+def upload_text():
+    if request.get_json() and 'text' in request.get_json():  # text upload
+        return json.dumps(Summarization.pdf_article_to_summary(request.get_json()['text'], 4))
+
+
+@app.route('/upload_pdf', methods=['POST'])
+def upload_pdf():
+    if 'file' in request.files:  # pdf upload
+        file = request.files['file']
+        if '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS:
+            highlights = json.dumps(Summarization.pdf_article_to_summary(PDFtoText.pdf_to_text(file), 4))
+            if highlights == '':
+                return make_error('Invalid file')
+            return highlights
+    return make_error('No file uploaded or file not named \'file\'')
 
 
 def make_error(message):
