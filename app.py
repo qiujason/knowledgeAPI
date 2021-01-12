@@ -37,14 +37,28 @@ cursor = connection.cursor()
 @app.route('/upload_site', methods=['GET'])
 def upload_site():
     if request.args.get('website'):
-        return Summarization.site_article_to_summary(WebScraping.web_scraping(request.args.get('website')), 20)
+        site = request.args.get('website')
+        site_text = WebScraping.web_scraping(request.args.get('website'))
+        highlights = Summarization.site_article_to_summary(site_text, 20)
+        cursor.execute("INSERT INTO highlights_site(url,site_text,highlights,submission_time) VALUES ('%s','%s','%s',NOW());" %
+                       (site,
+                        "\n".join(site_text),
+                        "\n".join(highlights)))
+        connection.commit()
+        return highlights
     return make_error('No website')
 
 
 @app.route('/upload_text', methods=['POST'])
 def upload_text():
     if request.get_json() and 'text' in request.get_json():  # text upload
-        return json.dumps(Summarization.pdf_article_to_summary(request.get_json()['text'], 4))
+        text = request.get_json()['text']
+        highlights = Summarization.pdf_article_to_summary(text, 4)
+        cursor.execute("INSERT INTO highlights_pdf(pdf_text,highlights,submission_time) VALUES ('%s','%s',NOW());" %
+                       ("\n".join(text),
+                        "\n".join(highlights)))
+        connection.commit()
+        return json.dumps(highlights)
 
 
 @app.route('/upload_pdf', methods=['POST'])
@@ -52,10 +66,16 @@ def upload_pdf():
     if 'file' in request.files:  # pdf upload
         file = request.files['file']
         if '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS:
-            highlights = json.dumps(Summarization.pdf_article_to_summary(PDFtoText.pdf_to_text(file), 4))
-            if highlights == '':
+            pdf_text = PDFtoText.pdf_to_text(file)
+            highlights = Summarization.pdf_article_to_summary(pdf_text, 4)
+            highlights_json = json.dumps(highlights)
+            if highlights_json == '':
                 return make_error('Invalid file')
-            return highlights
+            cursor.execute("INSERT INTO highlights_pdf(pdf_text,highlights,submission_time) VALUES (%s,%s,NOW());" %
+                           ("'" + "\n".join(pdf_text) + "'",
+                            "'" + "\n".join(highlights) + "'"))
+            connection.commit()
+            return highlights_json
     return make_error('No file uploaded or file not named \'file\'')
 
 
