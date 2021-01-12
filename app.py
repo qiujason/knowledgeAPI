@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
-from flaskext.mysql import MySQL
+import mysql.connector
+from mysql.connector import Error
 import json
 import WebScraping
 import Summarization
@@ -12,11 +13,25 @@ ALLOWED_EXTENSIONS = {'pdf'}
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = './' + UPLOAD_FOLDER
 
-mysql = MySQL()
-app.config['MYSQL_DATABASE_USER'] = 'jason'
-app.config['MYSQL-DATABASE_PASSWORD'] = 'password'
-app.config['MYSQL_DATABASE_DB'] = ''
-app.config['MYSQL_DATABASE_HOST'] = 'localhost'
+
+def create_connection(host_name, user_name, user_password, db_name):
+    connection = None
+    try:
+        connection = mysql.connector.connect(
+            host=host_name,
+            user=user_name,
+            passwd=user_password,
+            database=db_name
+        )
+        print("Connection to MySQL successful")
+    except Error as e:
+        print(f"The error '{e}' occurred")
+
+    return connection
+
+
+connection = create_connection("localhost", "root", "json1025", "knowledge")
+cursor = connection.cursor()
 
 
 @app.route('/upload_site', methods=['GET'])
