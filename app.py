@@ -6,12 +6,9 @@ import WebScraping
 import Summarization
 import PDFtoText
 
-UPLOAD_FOLDER = 'uploads'
-
 ALLOWED_EXTENSIONS = {'pdf'}
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = './' + UPLOAD_FOLDER
 
 
 def create_connection(host_name, user_name, user_password, db_name):
